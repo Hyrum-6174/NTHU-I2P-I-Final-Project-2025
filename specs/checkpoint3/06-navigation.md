@@ -2,7 +2,7 @@
 
 Score: 2 points
 
-![Alt Text](./Checkpoint3_gif/autonavigate.gif)
+![Alt Text](./Checkpoint3_gif/autonav.gif)
 
 - [ ] (1 pts) Create a list of places that can be navigated
     - There must be a functional button to navigate to the selected place
