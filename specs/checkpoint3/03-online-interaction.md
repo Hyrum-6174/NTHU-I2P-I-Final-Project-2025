@@ -11,7 +11,8 @@ Example for rendering other players
 
 - [ ] (2 points) Player can battle with other players
 
-Guide to Run Online:
+**Guide to Run Online:**
+
 Video guide: https://drive.google.com/file/d/1S3R6RD-XzZskEqNRjE9ytsM9qmjvTCth/view?usp=sharing
 
 1. Open a terminal and run python server.py
