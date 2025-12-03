@@ -51,12 +51,20 @@ Some of the TODOs may have their own prequisite. If there is a prequisite and it
 |---|---|---|
 | New Map | [New Map Spec](checkpoint3/01-new-map.md) | 1 |
 | Shop | [Shop Spec](checkpoint3/02-shop.md) | 2 |
-| Online Interaction | [Online Interaction Spec](checkpoint3/03-online-interaction.md) | 4 |
+| Online Interaction | [Online Interaction Spec](checkpoint3/03-online-interaction.md) | 3 |
 | Advance Battle | [Advance Battle Spec](checkpoint3/04-advance-battle.md) | 4 |
 | Minimap | [Minimap Spec](checkpoint3/05-minimap.md) | 2 |
-| Navigation | [Navigation Spec](checkpoint3/06-navigation.md) | 4 |
+| Navigation | [Navigation Spec](checkpoint3/06-navigation.md) | 2 |
 
-Note: The maximum score for this checkpoint is 15 points.
+Note: The maximum score for this checkpoint's specifications is 10 points.
+
+**IMPORTANT**
+**Important**
+We will implement a ***completeness*** score, about 5% in total. As a result, you will have 15 point score for checkpoint 3, with 10 from specs and 5 from completeness.
+
+Moreover, from the 5 point completeness score, we will have 4 be from the game being "good", i.e. having okay UI, no bugs, logically sound gameflow (e.g. teleporting back from gym doesn't put you back at start), etc.
+
+The remaining 1 point will come from how good your game is, if you implement some cool features, we can give you that 1 point.
 
 ---
 

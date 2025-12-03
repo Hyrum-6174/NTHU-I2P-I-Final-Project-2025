@@ -1,6 +1,6 @@
 # Minimap
 
-Score: 1 points
+Score: 2 points
 
 ![Alt Text](./Checkpoint3_gif/Minimap.gif)
 
