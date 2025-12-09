@@ -236,6 +236,8 @@ class OnlineManager:
                         pass
 
                     if latest_update and self.player_id >= 0:
+                        # HINT: This part might be helpful for direction change
+                        # Maybe you can add other parameters?
                         message = {
                             "type": "player_update",
                             "x": latest_update.get("x"),
