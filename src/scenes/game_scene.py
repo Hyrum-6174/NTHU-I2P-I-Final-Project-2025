@@ -206,7 +206,7 @@ class GameScene(Scene):
 def _draw_chat_bubble_for_pos(self, screen: pg.Surface, camera: PositionCamera, world_pos: Position, text: str, font: pg.font.Font):
     pass
     """
-    Conceptual steps:
+    Steps:
         ------------------
         1. Convert a player’s world position into a location on the screen.
         (Use the camera system provided by the game engine.)

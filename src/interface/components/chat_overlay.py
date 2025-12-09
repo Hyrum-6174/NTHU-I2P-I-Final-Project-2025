@@ -60,9 +60,16 @@ class ChatOverlay(UIComponent):
         The goal of this section is simple:
         # Turn keyboard keys into characters that appear inside the chat box.
 
-                
+        ex: 
+        # Letters
+        shift = input_manager.key_down(pg.K_LSHIFT) or input_manager.key_down(pg.K_RSHIFT)
+        for k in range(pg.K_a, pg.K_z + 1):
+            if input_manager.key_pressed(k):
+                ch = chr(ord('a') + (k - pg.K_a))
+                self._input_text += (ch.upper() if shift else ch)
+
         # TODO
-        # Enter to send
+        # Enter to send. You can use the below code, just fill in the blanks.
         if input_manager.key_pressed(...) or input_manager.key_pressed(...):
             txt = self._input_text.strip()
             if txt and self._____:

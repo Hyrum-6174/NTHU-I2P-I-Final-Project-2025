@@ -68,7 +68,7 @@ CLIENTS_LOCK = asyncio.Lock()
 async def broadcast_player_update():
     """Broadcast player list to all connected clients periodically"""
     while True:
-        await asyncio.sleep(0.05)  # 20 updates per second
+        await asyncio.sleep(0.0167)  # 60 updates per second
         players = PLAYER_HANDLER.list_players()
         message = {
             "type": "players_update",

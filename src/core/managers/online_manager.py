@@ -219,7 +219,7 @@ class OnlineManager:
 
     async def _ws_sender(self, websocket: Any) -> None:
         """Send updates to server via WebSocket"""
-        update_interval = 0.05  # 20 updates per second
+        update_interval = 0.0167  # 60 updates per second
         last_update = time.monotonic()
 
         while not self._stop_event.is_set():
