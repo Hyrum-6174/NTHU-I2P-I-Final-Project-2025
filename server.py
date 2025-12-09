@@ -2,8 +2,7 @@ import asyncio
 import json
 import time
 import threading
-from typing import Dict, Set, Any
-from dataclasses import dataclass, asdict
+from typing import Set, Any
 from server.playerHandler import PlayerHandler
 
 from websockets.asyncio.server import serve
@@ -124,16 +123,17 @@ async def handle_client(websocket: Any):
                 data = json.loads(message)
                 msg_type = data.get("type")
                 
+                
                 if msg_type == "player_update":
                     # Update player position - use server-assigned ID, ignore client ID
                     x = float(data.get("x", 0))
                     y = float(data.get("y", 0))
                     map_name = str(data.get("map", ""))
-                    dir_name = str(data.get("dir", "down"))
-                    moving = bool(data.get("moving", False))
                     
                     # Use the server-assigned player_id, not client-provided
-                    PLAYER_HANDLER.update(player_id, x, y, map_name, dir_name, moving)
+                    # HINT: This part might be helpful for direction change
+                    # Maybe you can add other parameters? 
+                    PLAYER_HANDLER.update(player_id, x, y, map_name)
                     
                 elif msg_type == "chat_send":
                     # Send chat message - use server-assigned ID
@@ -173,7 +173,7 @@ async def handle_client(websocket: Any):
                 }))
                 
     except Exception:
-        pass
+        print(f"[Server] Client handler error: {e}")
     finally:
         # Unregister player on disconnect
         if player_id >= 0:
