@@ -1,0 +1,198 @@
+import pygame as pg
+import threading
+import time
+
+from src.scenes.scene import Scene
+from src.core import GameManager, OnlineManager
+from src.utils import Logger, PositionCamera, GameSettings, Position
+from src.core.services import scene_manager, sound_manager, input_manager
+from src.sprites import Sprite
+from src.interface.components import Button
+from typing import override
+import json
+
+class GameScene(Scene):
+    game_manager: GameManager
+    online_manager: OnlineManager | None
+    sprite_online: Sprite
+    
+    def __init__(self, game_manager: GameManager):
+        super().__init__()
+        self.game_manager = game_manager
+        self.showing_bag = False
+
+        # Online Manager
+        if GameSettings.IS_ONLINE:
+            self.online_manager = OnlineManager()
+        else:
+            self.online_manager = None
+        self.sprite_online = Sprite("ingame_ui/options1.png", (GameSettings.TILE_SIZE, GameSettings.TILE_SIZE))
+
+        button_width = 75
+        button_height = 75
+
+        center_x = GameSettings.SCREEN_WIDTH // 2
+        play_y = GameSettings.SCREEN_HEIGHT * 3 // 4
+
+        settings_x = center_x - button_width + 600
+        settings_y = play_y - 520
+        self.settings_button = Button(
+            "UI/button_setting.png", "UI/button_setting_hover.png",
+            settings_x, settings_y,
+            button_width, button_height,
+            self.open_settings
+        )
+
+        self.backpack_button = Button(
+            "UI/button_backpack.png", "UI/button_backpack_hover.png",
+            settings_x - 80, settings_y,
+            button_width, button_height,
+            self.open_backpack
+        )
+
+        center_x = GameSettings.SCREEN_WIDTH // 2
+        start_y = GameSettings.SCREEN_HEIGHT // 2 - 100
+        gap_y = 100
+
+        self.back_button = Button(
+            "UI/button_back.png",
+            "UI/button_back_hover.png",
+            center_x - 255, start_y + 2 * gap_y,
+            100, 80,
+            self.open_backpack
+        )
+
+        self.board_sprite = Sprite(
+            "UI/raw/UI_Flat_FrameSlot02a.png",
+            (625, 500)
+        )
+
+        self.board_pos = (
+            GameSettings.SCREEN_WIDTH // 2 - 325,
+            GameSettings.SCREEN_HEIGHT // 2 - 300
+        )
+
+    def open_backpack(self):
+        self.showing_bag = not self.showing_bag
+
+    def open_settings(self):
+        settings_scene = scene_manager._scenes["settings"]
+        for key, scene in scene_manager._scenes.items():
+            if scene is scene_manager._current_scene:
+                settings_scene.previous_scene_name = key
+                break
+        else:
+            settings_scene.previous_scene_name = "menu"
+        scene_manager.change_scene("settings")
+
+    @override
+    def enter(self) -> None:
+        if self.game_manager.music_on and not self.game_manager.repeated_enter:
+            sound_manager.play_sound("RBY 103 Pallet Town.ogg", int(self.game_manager.music_slider_value) / 100)
+        if self.online_manager:
+            self.online_manager.enter()
+        self.game_manager.repeated_enter = True
+
+        
+    @override
+    def exit(self) -> None:
+        sound_manager.stop_all_sounds()
+        self.game_manager.repeated_enter = False
+        if self.online_manager:
+            self.online_manager.exit()
+        
+    @override
+    def update(self, dt: float):
+        # Check if there is assigned next scene
+        self.game_manager.try_switch_map()
+        if self.showing_bag:
+            self.game_manager.bag.update(dt)
+            self.back_button.update(dt)
+
+        elif self.game_manager.shop_open:
+            for shopkeeper in self.game_manager.current_shopkeeper:
+                shopkeeper.update(dt)
+
+        else:
+            self.game_manager.current_map.update(dt)
+            if self.game_manager.change_bgm:
+                if self.game_manager.current_map_key == "desert.tmx":
+                    sound_manager.stop_all_sounds()
+                    sound_manager.play_sound("RBY 130 Mt. Moon.ogg", int(self.game_manager.music_slider_value) / 100)
+                    self.game_manager.change_bgm = False
+                elif self.game_manager.current_map_key == "map.tmx":
+                    sound_manager.stop_all_sounds()
+                    sound_manager.play_sound("RBY 103 Pallet Town.ogg", int(self.game_manager.music_slider_value) / 100)
+                    self.game_manager.change_bgm = False
+                elif self.game_manager.current_map_key == "gym.tmx":
+                    sound_manager.stop_all_sounds()
+                    sound_manager.play_sound("RBY 126 Pokemon Gym.ogg", int(self.game_manager.music_slider_value) / 100)
+                    self.game_manager.change_bgm = False
+
+            # Update player and other data
+            if self.game_manager.player:
+                self.game_manager.player.update(dt)
+            for enemy in self.game_manager.current_enemy_trainers:
+                enemy.update(dt)
+            for shopkeeper in self.game_manager.current_shopkeeper:
+                shopkeeper.update(dt)
+
+            self.settings_button.update(dt)
+            self.backpack_button.update(dt)
+
+        if self.game_manager.player is not None and self.online_manager is not None:
+            _ = self.online_manager.update(
+                self.game_manager.player.position.x, 
+                self.game_manager.player.position.y,
+                self.game_manager.current_map.path_name
+            )
+        
+    @override
+    def draw(self, screen: pg.Surface):
+        if self.game_manager.player:
+            '''
+            [TODO HACKATHON 3]
+            Implement the camera algorithm logic here
+            Right now it's hard coded, you need to follow the player's positions
+            you may use the below example, but the function still incorrect, you may trace the entity.py
+
+            camera = self.game_manager.player.camera
+            '''
+            camera = self.game_manager.player.camera
+            self.game_manager.current_map.draw(screen, camera)
+            self.game_manager.player.draw(screen, camera)
+            self.game_manager.current_map.draw_ruin(screen, camera)
+            self.game_manager.current_map.draw_mini_map(screen)
+            
+        else:
+            camera = PositionCamera(0, 0)
+            self.game_manager.current_map.draw(screen, camera)
+        
+        for enemy in self.game_manager.current_enemy_trainers:
+            enemy.draw(screen, camera)
+
+        for shopkeeper in self.game_manager.current_shopkeeper:
+            shopkeeper.draw(screen, camera)
+
+        if not self.game_manager.shop_open:
+            self.settings_button.draw(screen)
+            self.backpack_button.draw(screen)
+        
+        if self.showing_bag:
+            board_x, board_y = self.board_pos
+            dark_overlay = pg.Surface((GameSettings.SCREEN_WIDTH, GameSettings.SCREEN_HEIGHT), pg.SRCALPHA)
+            dark_overlay.fill((0, 0, 0, 150))
+            screen.blit(dark_overlay, (0, 0))
+            screen.blit(self.board_sprite.image, (board_x, board_y))
+            self.game_manager.bag.draw(screen, (board_x, board_y))
+            self.back_button.draw(screen)
+
+        
+        if self.online_manager and self.game_manager.player:
+            list_online = self.online_manager.get_list_players()
+            for player in list_online:
+                if player["map"] == self.game_manager.current_map.path_name:
+                    cam = self.game_manager.player.camera
+                    pos = cam.transform_position_as_position(Position(player["x"], player["y"]))
+                    self.sprite_online.update_pos(pos)
+                    self.sprite_online.draw(screen)

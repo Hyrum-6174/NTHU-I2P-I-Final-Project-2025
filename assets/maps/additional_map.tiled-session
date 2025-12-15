@@ -1,0 +1,45 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "desert.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "desert.tmx": {
+            "scale": 3,
+            "selectedLayer": 2,
+            "viewCenter": {
+                "x": 105.16666666666666,
+                "y": 162.49999999999997
+            }
+        },
+        "map.tmx": {
+            "scale": 3,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 903.8333333333333,
+                "y": 458.16666666666663
+            }
+        },
+        "tileset.tsx": {
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
+        }
+    },
+    "map.lastUsedFormat": "tmx",
+    "openFiles": [
+        "desert.tmx",
+        "tileset.tsx",
+        "map.tmx"
+    ],
+    "project": "additional_map.tiled-project",
+    "recentFiles": [
+        "map.tmx",
+        "tileset.tsx",
+        "desert.tmx"
+    ]
+}
