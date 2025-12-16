@@ -132,6 +132,8 @@ class GameScene(Scene):
             # Update player and other data
             if self.game_manager.player:
                 self.game_manager.player.update(dt)
+                if self.game_manager.player.is_moving:
+                    self.game_manager.current_map.update_minimap_view(self.game_manager.player.position)
             for enemy in self.game_manager.current_enemy_trainers:
                 enemy.update(dt)
             for shopkeeper in self.game_manager.current_shopkeeper:

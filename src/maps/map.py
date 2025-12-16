@@ -64,39 +64,15 @@ class Map:
         self._ruin_map = self._create_ruin_map()
         self._bush_map = self._create_bush_map()
 
-        # button_width = 75
-        # button_height = 75
+        self.minimap_tile_radius = 16
+        self.minimap_view = pg.Surface(
+            (
+                GameSettings.TILE_SIZE // 6 * 2 * self.minimap_tile_radius,
+                GameSettings.TILE_SIZE // 6 * 2 * self.minimap_tile_radius
+            ),
+            pg.SRCALPHA
+        )
 
-        # center_x = GameSettings.SCREEN_WIDTH // 2
-        # play_y = GameSettings.SCREEN_HEIGHT * 3 // 4
-
-        # settings_x = center_x - button_width + 600
-        # settings_y = play_y - 520
-        # self.settings_button = Button(
-        #     "UI/button_setting.png", "UI/button_setting_hover.png",
-        #     settings_x, settings_y,
-        #     button_width, button_height,
-        #     self.open_settings
-        # )
-
-        # self.backpack_button = Button(
-        #     "UI/button_backpack.png", "UI/button_backpack_hover.png",
-        #     settings_x - 80, settings_y,
-        #     button_width, button_height,
-        #     self.open_backpack
-        # )
-
-        # center_x = GameSettings.SCREEN_WIDTH // 2
-        # start_y = GameSettings.SCREEN_HEIGHT // 2 - 100
-        # gap_y = 100
-
-        # self.back_button = Button(
-        #     "UI/button_back.png",
-        #     "UI/button_back_hover.png",
-        #     center_x - 185, start_y + 2 * gap_y,
-        #     100, 80,
-        #     self.open_backpack
-        # )
 
         self.board_sprite = Sprite(
             "UI/raw/UI_Flat_FrameSlot02a.png",
@@ -108,55 +84,7 @@ class Map:
             GameSettings.SCREEN_HEIGHT // 2 - 300
         )
 
-    # def open_backpack(self):
-    #     self.showing_bag = not self.showing_bag
 
-    # def draw_backpack(self, screen: pg.Surface):
-        
-    #     with open("saves/temp.json", "r") as f:
-    #         game_data = json.load(f)
-
-    #     self.bag.from_dict(game_data["bag"])
-    #     board_x, board_y = self.board_pos
-    #     screen.blit(self.board_sprite.image, (board_x, board_y))
-
-    #     item_start_x = board_x + 40
-    #     item_start_y = board_y + 20
-    #     item_gap_y = 50
-    #     for i, item in enumerate(game_data["bag"]["items"]):
-    #         img_path = f"assets/images/{item['sprite_path']}"
-    #         try:
-    #             img = pg.image.load(img_path).convert_alpha()
-    #             img = pg.transform.scale(img, (40, 40))
-    #         except Exception:
-    #             img = pg.Surface((40, 40))
-    #             img.fill((200, 200, 200))
-
-    #         y = item_start_y + i * item_gap_y
-    #         screen.blit(img, (item_start_x, y))
-    #         font = pg.font.Font(None, 24)
-    #         text = font.render(f"{item['name']} x{item['count']}", True, (255, 255, 255))
-    #         screen.blit(text, (item_start_x + 50, y + 10))
-
-    #     mon_start_x = board_x + 270
-    #     mon_start_y = board_y + 20
-    #     mon_gap_y = 70
-    #     for i, mon in enumerate(game_data["bag"]["monsters"]):
-    #         img_path = f"assets/images/{mon['sprite_path']}"
-    #         try:
-    #             img = pg.image.load(img_path).convert_alpha()
-    #             img = pg.transform.scale(img, (50, 50))
-    #         except Exception:
-    #             img = pg.Surface((50, 50))
-    #             img.fill((150, 150, 150))
-
-    #         y = mon_start_y + i * mon_gap_y
-    #         screen.blit(img, (mon_start_x, y))
-    #         font = pg.font.Font(None, 22)
-    #         name_text = font.render(f"{mon['name']} Lv{mon['level']}", True, (255, 255, 255))
-    #         hp_text = font.render(f"HP: {mon['hp']}/{mon['max_hp']}", True, (255, 255, 255))
-    #         screen.blit(name_text, (mon_start_x + 60, y + 5))
-    #         screen.blit(hp_text, (mon_start_x + 60, y + 25))
 
     @override
     def update(self, dt: float):
@@ -182,8 +110,32 @@ class Map:
             screen.blit(image, camera.transform_rect(rect))
 
     def draw_mini_map(self, screen: pg.Surface):
-        screen.blit(self.minimap, (0, 0))
-        pass
+        screen.blit(self.minimap_view, (0, 0))
+        center_x = self.minimap_view.get_width() // 2
+        center_y = self.minimap_view.get_height() // 2
+        pg.draw.circle(screen, (0, 0, 0), (center_x, center_y), 6)
+        pg.draw.circle(screen, (255, 255, 255), (center_x, center_y), 5)
+
+    def update_minimap_view(self, player_pos: Position):
+        tile_size = GameSettings.TILE_SIZE // 6
+        radius = self.minimap_tile_radius
+
+        center_x = (player_pos.x // GameSettings.TILE_SIZE) * tile_size
+        center_y = (player_pos.y // GameSettings.TILE_SIZE) * tile_size
+
+        view_px = radius * tile_size
+        view_size = radius * 2 * tile_size
+
+        src_rect = pg.Rect(
+            center_x - view_px,
+            center_y - view_px,
+            view_size,
+            view_size
+        )
+
+        self.minimap_view.fill((0, 0, 0, 0))
+
+        self.minimap_view.blit(self.minimap, (0, 0), src_rect)
 
     def check_collision(self, rect: pg.Rect) -> bool:
         for coll_rect in self._collision_map:
@@ -244,8 +196,8 @@ class Map:
             image = self.tmxdata.get_tile_image_by_gid(gid)
             if image is None:
                 continue
-            image = pg.transform.scale(image, (GameSettings.TILE_SIZE / 6, GameSettings.TILE_SIZE / 6))
-            target.blit(image, (x * GameSettings.TILE_SIZE/6, y * GameSettings.TILE_SIZE/6))
+            image = pg.transform.scale(image, (GameSettings.TILE_SIZE // 6, GameSettings.TILE_SIZE // 6))
+            target.blit(image, (x * (GameSettings.TILE_SIZE // 6), y * (GameSettings.TILE_SIZE // 6)))
 
     def _create_collision_map(self) -> list[pg.Rect]:
         rects = []

@@ -10,19 +10,19 @@
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
         "desert.tmx": {
-            "scale": 3,
+            "scale": 2,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 105.16666666666666,
-                "y": 162.49999999999997
+                "x": 134.75,
+                "y": 165.75
             }
         },
         "map.tmx": {
             "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 903.8333333333333,
-                "y": 458.16666666666663
+                "x": 528.1666666666666,
+                "y": 312.16666666666663
             }
         },
         "tileset.tsx": {

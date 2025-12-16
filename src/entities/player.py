@@ -16,6 +16,7 @@ class Player(Entity):
         super().__init__(x, y, game_manager)
         self.just_tp = False
         self.draw_player_under = False
+        self.is_moving = False
 
     @override
     def update(self, dt: float) -> None:
@@ -44,6 +45,9 @@ class Player(Entity):
         if length > 0:
             dis.x = (dis.x / length) * self.speed * dt
             dis.y = (dis.y / length) * self.speed * dt
+            self.is_moving = True
+        else:
+            self.is_moving = False
 
         ''' [TODO HACKATHON 4] Check if there is collision with map or NPCs. 
         Update X and Y separately to prevent glitchy teleportation 
