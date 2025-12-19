@@ -229,15 +229,15 @@ class BattleScene(Scene):
 
             if not self.temp_buttons:
                 for i, mon in enumerate(self.game_manager.bag._monsters_data):
-                    y_button = mon_start_y + i * mon_gap_y
-                    
-                    temp_button = Button(
-                        "UI/button_play.png", "UI/button_play_hover.png",
-                        mon_start_x + 220, y_button + 15,
-                        60, 60,
-                        lambda m=mon, num = i: self.choosing_monster(m, num)
-                    )
-                    self.temp_buttons.append(temp_button)
+                    if mon["hp"] > 0:
+                        y_button = mon_start_y + i * mon_gap_y
+                        temp_button = Button(
+                            "UI/button_play.png", "UI/button_play_hover.png",
+                            mon_start_x + 220, y_button + 15,
+                            60, 60,
+                            lambda m=mon, num = i: self.choosing_monster(m, num)
+                        )
+                        self.temp_buttons.append(temp_button)
 
             
 
@@ -339,7 +339,8 @@ class BattleScene(Scene):
                             "max_hp": self.chosen_monster.max_hp,
                             "sprite_path": self.chosen_monster.sprite_path
                         }
-
+                sound_manager.stop_all_sounds()
+                sound_manager.play_sound("toby fox - UNDERTALE Soundtrack - 11 Determination.ogg", int(self.game_manager.music_slider_value) / 100)
             
             elif self.enemy.hp <= 0:
                 self.enemy.hp = 0

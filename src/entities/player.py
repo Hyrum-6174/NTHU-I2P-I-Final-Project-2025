@@ -28,15 +28,19 @@ class Player(Entity):
         if input_manager.key_down(pg.K_LEFT) or input_manager.key_down(pg.K_a):
             dis.x -= 1 
             self.animation.switch("left")
+            self.direction = Direction.LEFT
         if input_manager.key_down(pg.K_RIGHT) or input_manager.key_down(pg.K_d):
             dis.x += 1
             self.animation.switch("right")
+            self.direction = Direction.RIGHT
         if input_manager.key_down(pg.K_UP) or input_manager.key_down(pg.K_w):
             dis.y -= 1
             self.animation.switch("up")
+            self.direction = Direction.UP
         if input_manager.key_down(pg.K_DOWN) or input_manager.key_down(pg.K_s):
             dis.y += 1
             self.animation.switch("down")
+            self.direction = Direction.DOWN
         
 
 

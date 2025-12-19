@@ -7,7 +7,9 @@ from src.core import GameManager, OnlineManager
 from src.utils import Logger, PositionCamera, GameSettings, Position
 from src.core.services import scene_manager, sound_manager, input_manager
 from src.sprites import Sprite
+from src.sprites import Animation
 from src.interface.components import Button
+from src.interface.components.chat_overlay import ChatOverlay
 from typing import override
 import json
 
@@ -15,7 +17,8 @@ class GameScene(Scene):
     game_manager: GameManager
     online_manager: OnlineManager | None
     sprite_online: Sprite
-    
+    animation_online: Animation
+
     def __init__(self, game_manager: GameManager):
         super().__init__()
         self.game_manager = game_manager
@@ -24,10 +27,14 @@ class GameScene(Scene):
         # Online Manager
         if GameSettings.IS_ONLINE:
             self.online_manager = OnlineManager()
+            self.chat_overlay = ChatOverlay(self.online_manager.send_chat, self.online_manager.get_recent_chat)
         else:
             self.online_manager = None
         self.sprite_online = Sprite("ingame_ui/options1.png", (GameSettings.TILE_SIZE, GameSettings.TILE_SIZE))
-
+        self.animation_online = Animation(
+            "character/ow1.png", ["down", "left", "right", "up"], 4,
+            (GameSettings.TILE_SIZE, GameSettings.TILE_SIZE),
+        )
         button_width = 75
         button_height = 75
 
@@ -130,10 +137,11 @@ class GameScene(Scene):
                     self.game_manager.change_bgm = False
 
             # Update player and other data
-            if self.game_manager.player:
-                self.game_manager.player.update(dt)
-                if self.game_manager.player.is_moving:
-                    self.game_manager.current_map.update_minimap_view(self.game_manager.player.position)
+            if not self.chat_overlay.is_open:
+                if self.game_manager.player:
+                    self.game_manager.player.update(dt)
+                    if self.game_manager.player.is_moving:
+                        self.game_manager.current_map.update_minimap_view(self.game_manager.player.position)
             for enemy in self.game_manager.current_enemy_trainers:
                 enemy.update(dt)
             for shopkeeper in self.game_manager.current_shopkeeper:
@@ -146,9 +154,14 @@ class GameScene(Scene):
             _ = self.online_manager.update(
                 self.game_manager.player.position.x, 
                 self.game_manager.player.position.y,
-                self.game_manager.current_map.path_name
+                self.game_manager.current_map.path_name,
+                self.game_manager.player.direction.name
             )
-        
+            self.animation_online.update(dt)
+            self.chat_overlay.update(dt)
+            if not self.chat_overlay.is_open and input_manager.key_pressed(pg.K_t):
+                self.chat_overlay.open()
+
     @override
     def draw(self, screen: pg.Surface):
         if self.game_manager.player:
@@ -196,5 +209,9 @@ class GameScene(Scene):
                 if player["map"] == self.game_manager.current_map.path_name:
                     cam = self.game_manager.player.camera
                     pos = cam.transform_position_as_position(Position(player["x"], player["y"]))
-                    self.sprite_online.update_pos(pos)
-                    self.sprite_online.draw(screen)
+                    # self.sprite_online.update_pos(pos)
+                    # self.sprite_online.draw(screen)
+                    self.animation_online.update_pos(pos)
+                    self.animation_online.switch(player['direction'].lower())
+                    self.animation_online.draw(screen)
+            self.chat_overlay.draw(screen)

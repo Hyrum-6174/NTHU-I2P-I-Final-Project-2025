@@ -132,8 +132,8 @@
   ],
   "current_map": "map.tmx",
   "player": {
-    "x": 16.0,
-    "y": 30.0
+    "x": 22.514101730552724,
+    "y": 30.042426406871193
   },
   "bag": {
     "monsters": [
@@ -174,9 +174,9 @@
       },
       {
         "name": "Dragonite",
-        "hp": 180,
-        "max_hp": 220,
         "level": 40,
+        "hp": 0,
+        "max_hp": 220,
         "sprite_path": "menu_sprites/menusprite6.png"
       }
     ],
