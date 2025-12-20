@@ -11,7 +11,7 @@ import json
 from src.core.managers import GameManager
 import math
 import time
-
+from collections import deque
 
 
 
@@ -212,6 +212,98 @@ class Map:
                             GameSettings.TILE_SIZE
                         ))
         return rects
+
+    def create_map_for_navigation(self):
+        width = self.tmxdata.width
+        height = self.tmxdata.height
+        grid = [[0 for _ in range(width)] for _ in range(height)]
+        for layer in self.tmxdata.visible_layers:
+            if isinstance(layer, pytmx.TiledTileLayer) and ("collision" in layer.name.lower() or "house" in layer.name.lower()):
+                for x, y, gid in layer:
+                    if gid != 0:
+                        grid[y][x] = 1
+        return grid
+
+    def bfs_path(self, grid, start, target):
+        height = len(grid)
+        width = len(grid[0])
+
+        sx, sy = start
+        tx, ty = target
+
+        # bounds + collision sanity
+        if not (0 <= sx < width and 0 <= sy < height):
+            return None
+        if not (0 <= tx < width and 0 <= ty < height):
+            return None
+        if grid[sy][sx] == 1 or grid[ty][tx] == 1:
+            return None
+
+        queue = deque()
+        queue.append((sx, sy))
+
+        visited = [[False for _ in range(width)] for _ in range(height)]
+        visited[sy][sx] = True
+
+        parent = {}  # (x, y) -> (px, py)
+
+        directions = [
+            (1, 0), (-1, 0),
+            (0, 1), (0, -1),
+        ]
+
+        while queue:
+            x, y = queue.popleft()
+
+            if (x, y) == (tx, ty):
+                break
+
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dy
+
+                if 0 <= nx < width and 0 <= ny < height:
+                    if not visited[ny][nx] and grid[ny][nx] == 0:
+                        visited[ny][nx] = True
+                        parent[(nx, ny)] = (x, y)
+                        queue.append((nx, ny))
+        else:
+            # target never reached
+            return None
+
+        # reconstruct path
+        path = []
+        cur = (tx, ty)
+        while cur != (sx, sy):
+            path.append(cur)
+            cur = parent[cur]
+        path.append((sx, sy))
+        path.reverse()
+
+        return path
+
+    def draw_direction_triangle(self, surface, camera, tile_x, tile_y, direction, color=(255, 0, 0)):
+        cx = tile_x * GameSettings.TILE_SIZE + GameSettings.TILE_SIZE // 2
+        cy = tile_y * GameSettings.TILE_SIZE + GameSettings.TILE_SIZE // 2
+
+        
+        screen_pos = camera.transform_position(Position(cx, cy))
+        cx, cy = screen_pos
+
+        s = GameSettings.TILE_SIZE // 2 - 2
+        dx, dy = direction
+
+        if (dx, dy) == (1, 0):
+            points = [(cx + s, cy), (cx - s, cy - s), (cx - s, cy + s)]
+        elif (dx, dy) == (-1, 0):
+            points = [(cx - s, cy), (cx + s, cy - s), (cx + s, cy + s)]
+        elif (dx, dy) == (0, 1):
+            points = [(cx, cy + s), (cx - s, cy - s), (cx + s, cy - s)]
+        elif (dx, dy) == (0, -1):
+            points = [(cx, cy - s), (cx - s, cy + s), (cx + s, cy + s)]
+        else:
+            return
+
+        pg.draw.polygon(surface, color, points)
 
     def _create_ruin_map(self):
         tiles = []

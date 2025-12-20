@@ -6,6 +6,7 @@ from src.scenes.scene import Scene
 from src.core import GameManager, OnlineManager
 from src.utils import Logger, PositionCamera, GameSettings, Position
 from src.utils.evo_dict import EvoDict
+from src.utils.destination_dict import DestinationDict
 from src.core.services import scene_manager, sound_manager, input_manager
 from src.sprites import Sprite
 from src.sprites import Animation
@@ -24,7 +25,13 @@ class GameScene(Scene):
         super().__init__()
         self.game_manager = game_manager
         self.showing_bag = False
-        self.evo_dict = EvoDict.evo_dict
+        self.nav_open = False
+        self.navigating = False
+        temp = DestinationDict()
+        self.destination_dict = temp.destination_dict
+        self.navigate_to_buttons = []
+        temp1 = EvoDict()
+        self.evo_dict = temp1.evo_dict
 
         # Online Manager
         if GameSettings.IS_ONLINE:
@@ -60,7 +67,6 @@ class GameScene(Scene):
             self.open_backpack
         )
 
-        center_x = GameSettings.SCREEN_WIDTH // 2
         start_y = GameSettings.SCREEN_HEIGHT // 2 - 100
         gap_y = 100
 
@@ -70,6 +76,22 @@ class GameScene(Scene):
             center_x - 255, start_y + 2 * gap_y,
             100, 80,
             self.open_backpack
+        )
+
+        self.navigation_button = Button(
+            "UI/button_location.png",
+            "UI/button_location_hover.png",
+            settings_x - 160, settings_y,
+            button_width, button_height,
+            self.open_navigation_ui
+        )
+
+        self.navigation_back_button = Button(
+            "UI/button_back.png",
+            "UI/button_back_hover.png",
+            center_x - 295, start_y + 2 * gap_y,
+            100, 80,
+            self.open_navigation_ui
         )
 
         self.board_sprite = Sprite(
@@ -95,6 +117,16 @@ class GameScene(Scene):
             settings_scene.previous_scene_name = "menu"
         scene_manager.change_scene("settings")
 
+    def open_navigation_ui(self):
+        self.nav_open = not self.nav_open
+
+    def navigate_to(self, place):
+        self.destination = self.destination_dict[place][1]
+        start = (int(self.game_manager.player.position.x / GameSettings.TILE_SIZE), int(self.game_manager.player.position.y / GameSettings.TILE_SIZE))
+        self.grid = self.game_manager.current_map.create_map_for_navigation()
+        self.path = self.game_manager.current_map.bfs_path(self.grid, start, self.destination)
+        self.navigating = not self.navigating
+
     @override
     def enter(self) -> None:
         if self.game_manager.music_on and not self.game_manager.repeated_enter:
@@ -115,11 +147,19 @@ class GameScene(Scene):
     def update(self, dt: float):
         # Check if there is assigned next scene
         self.game_manager.try_switch_map()
+        if self.game_manager.stop_navigation:
+            self.navigating = False
+            self.game_manager.stop_navigation = False
         self.info_open = self.game_manager.bag.info_check()
         if self.showing_bag:
             self.game_manager.bag.update(dt)
             if not self.info_open:
                 self.back_button.update(dt)
+
+        elif self.nav_open:
+            self.navigation_back_button.update(dt)
+            for btn in self.navigate_to_buttons:
+                btn.update(dt)
 
         elif self.game_manager.shop_open:
             for shopkeeper in self.game_manager.current_shopkeeper:
@@ -160,6 +200,8 @@ class GameScene(Scene):
 
             self.settings_button.update(dt)
             self.backpack_button.update(dt)
+            self.navigation_button.update(dt)
+            self.navigate_to_buttons = []
 
         if self.game_manager.player is not None and self.online_manager is not None:
             _ = self.online_manager.update(
@@ -203,7 +245,58 @@ class GameScene(Scene):
         if not self.game_manager.shop_open:
             self.settings_button.draw(screen)
             self.backpack_button.draw(screen)
-        
+            self.navigation_button.draw(screen)
+
+        camera = self.game_manager.player.camera
+
+        if self.navigating and self.path:
+            start = (int(self.game_manager.player.position.x / GameSettings.TILE_SIZE), int(self.game_manager.player.position.y / GameSettings.TILE_SIZE))
+            self.path = self.game_manager.current_map.bfs_path(self.grid, start, self.destination)            
+            for i in range(len(self.path) - 1):
+                x0, y0 = self.path[i]
+                x1, y1 = self.path[i + 1]
+                dx, dy = x1 - x0, y1 - y0
+
+                self.game_manager.current_map.draw_direction_triangle(
+                    screen, camera, x0, y0, (dx, dy)
+                )
+
+        if self.nav_open:
+            board_x, board_y = self.board_pos
+            dark_overlay = pg.Surface((GameSettings.SCREEN_WIDTH, GameSettings.SCREEN_HEIGHT), pg.SRCALPHA)
+            dark_overlay.fill((0, 0, 0, 150))
+            screen.blit(dark_overlay, (0, 0))
+            screen.blit(self.board_sprite.image, (board_x, board_y))
+            self.navigation_back_button.draw(screen)
+            gap_y = 70
+            skip = 0
+            for i, (place, stats) in enumerate(self.destination_dict.items()):
+                if stats[0] == self.game_manager.current_map_key:
+                    font = pg.font.Font("assets/fonts/Minecraft.ttf", 42)
+                    place_text = font.render(f"{place}", True, (0, 0, 0))
+                    pos_text = font.render(f"X: {stats[1][0]} Y: {stats[1][1]}", True, (0, 0, 0))
+                    screen.blit(place_text, (board_x + 140, board_y + 45 + (i - skip) * gap_y))
+                    screen.blit(pos_text, (board_x + 320, board_y + 45 + (i - skip) * gap_y))
+                    if not self.navigate_to_buttons:
+                        ndic = 0
+                        for i, (place, stats) in enumerate(self.destination_dict.items()):
+                            if stats[0] == self.game_manager.current_map_key:
+                                y_button = board_y + 25 + (i - ndic) * gap_y
+                                
+                                temp_button = Button(
+                                    "UI/choose.png", "UI/choose_hover.png",
+                                    board_x + 40, y_button,
+                                    550, 70,
+                                    lambda there = place: self.navigate_to(there)
+                                )
+                                self.navigate_to_buttons.append(temp_button)
+                            else:
+                                ndic += 1
+                else:
+                    skip += 1
+            for btn in self.navigate_to_buttons:
+                btn.draw(screen)
+
         if self.showing_bag:
             board_x, board_y = self.board_pos
             dark_overlay = pg.Surface((GameSettings.SCREEN_WIDTH, GameSettings.SCREEN_HEIGHT), pg.SRCALPHA)

@@ -52,6 +52,7 @@ class GameManager:
         self.saving = False
         self.just_load = False
         self.shop_open = False
+        self.stop_navigation = False
 
         # Check If you should change scene
         self.should_change_scene = False
@@ -88,6 +89,7 @@ class GameManager:
             # print(self.just_load)
             self.current_map_key = self.next_map
             self.next_map = ""
+            self.stop_navigation = True
             self.should_change_scene = False
             if self.player and not self.just_load:
                 self.player.position = self.maps[self.current_map_key].spawn

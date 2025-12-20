@@ -148,8 +148,8 @@
   ],
   "current_map": "map.tmx",
   "player": {
-    "x": 22.710925973595383,
-    "y": 30.330925973595303
+    "x": 16.0,
+    "y": 30.0
   },
   "bag": {
     "monsters": [
@@ -205,12 +205,12 @@
       },
       {
         "name": "Dragonite",
-        "level": 42,
-        "hp": 0,
-        "max_hp": 229,
+        "hp": 180,
+        "max_hp": 220,
+        "level": 40,
         "sprite_path": "menu_sprites/menusprite6.png",
         "element": "water",
-        "exp": 15,
+        "exp": 0,
         "evo": 0
       }
     ],
@@ -225,7 +225,7 @@
       },
       {
         "name": "Might Potion",
-        "count": 4,
+        "count": 5,
         "sprite_path": "ingame_ui/might_potion.png",
         "value": 50,
         "stock": 99,
@@ -233,7 +233,7 @@
       },
       {
         "name": "Defense Potion",
-        "count": 4,
+        "count": 5,
         "sprite_path": "ingame_ui/defense_potion.png",
         "value": 50,
         "stock": 99,

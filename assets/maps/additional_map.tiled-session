@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "desert.tmx",
+    "activeFile": "map.tmx",
     "expandedProjectPaths": [
         "."
     ],
@@ -13,16 +13,16 @@
             "scale": 2,
             "selectedLayer": 2,
             "viewCenter": {
-                "x": 134.75,
-                "y": 165.75
+                "x": 160.25,
+                "y": 159.75
             }
         },
         "map.tmx": {
             "scale": 3,
-            "selectedLayer": 0,
+            "selectedLayer": 1,
             "viewCenter": {
-                "x": 528.1666666666666,
-                "y": 312.16666666666663
+                "x": 25.83333333333333,
+                "y": 591.1666666666666
             }
         },
         "tileset.tsx": {
@@ -38,8 +38,8 @@
     ],
     "project": "additional_map.tiled-project",
     "recentFiles": [
-        "map.tmx",
+        "desert.tmx",
         "tileset.tsx",
-        "desert.tmx"
+        "map.tmx"
     ]
 }
