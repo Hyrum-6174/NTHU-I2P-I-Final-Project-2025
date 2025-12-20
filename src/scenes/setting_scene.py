@@ -212,6 +212,7 @@ class SettingScene(Scene):
         self.save_button.update(dt)
         self.load_button.update(dt)
         self.music_slider.update(dt)
+        self.game_manager.music_slider_value = self.music_slider.value
         self.sfx_slider.update(dt)
         self.game_manager.player.update(dt)
 

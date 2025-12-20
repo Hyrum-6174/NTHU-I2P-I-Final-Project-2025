@@ -32,8 +32,10 @@ class Slider(UIComponent):
 
         if self.dragging:
             self.handle_rect.x = max(self.bar_rect.x,
-                                     min(mouse[0], self.bar_rect.right - self.handle_rect.width))
-            self.value = self.min_val + (self.handle_rect.x - self.bar_rect.x) / self.bar_rect.width * (self.max_val - self.min_val)
+                                    min(mouse[0], self.bar_rect.right - self.handle_rect.width))
+            relative_x = self.handle_rect.x - self.bar_rect.x
+            handle_range = self.bar_rect.width - self.handle_rect.width
+            self.value = self.min_val + (relative_x / handle_range) * (self.max_val - self.min_val)
             if self.on_change:
                 self.on_change(self.value)
                 
