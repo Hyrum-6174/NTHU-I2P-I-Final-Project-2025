@@ -62,16 +62,32 @@
           "sprite": "character/ow5.png",
           "items": [
             {
-              "name": "Potion",
+              "name": "Healing Potion",
               "count": 99,
               "sprite_path": "ingame_ui/potion.png",
-              "value": 50
+              "value": 50,
+              "usable": "yes"
+            },
+            {
+              "name": "Might Potion",
+              "count": 99,
+              "sprite_path": "ingame_ui/might_potion.png",
+              "value": 50,
+              "usable": "yes"
+            },
+            {
+              "name": "Defense Potion",
+              "count": 99,
+              "sprite_path": "ingame_ui/defense_potion.png",
+              "value": 50,
+              "usable": "yes"
             },
             {
               "name": "Pokeball",
               "count": 99,
               "sprite_path": "ingame_ui/ball.png",
-              "value": 75
+              "value": 75,
+              "usable": "yes"
             }
           ]
         }
@@ -132,8 +148,8 @@
   ],
   "current_map": "map.tmx",
   "player": {
-    "x": 22.514101730552724,
-    "y": 30.042426406871193
+    "x": 22.710925973595383,
+    "y": 30.330925973595303
   },
   "bag": {
     "monsters": [
@@ -142,65 +158,102 @@
         "hp": 85,
         "max_hp": 100,
         "level": 25,
-        "sprite_path": "menu_sprites/menusprite1.png"
+        "sprite_path": "menu_sprites/menusprite1.png",
+        "element": "nature",
+        "exp": 0,
+        "evo": 0
       },
       {
         "name": "Charizard",
         "hp": 150,
         "max_hp": 200,
         "level": 36,
-        "sprite_path": "menu_sprites/menusprite2.png"
+        "sprite_path": "menu_sprites/menusprite2.png",
+        "element": "nature",
+        "exp": 0,
+        "evo": 1
       },
       {
         "name": "Blastoise",
         "hp": 120,
         "max_hp": 180,
         "level": 32,
-        "sprite_path": "menu_sprites/menusprite3.png"
+        "sprite_path": "menu_sprites/menusprite3.png",
+        "element": "nature",
+        "exp": 0,
+        "evo": 2
       },
       {
         "name": "Venusaur",
         "hp": 90,
         "max_hp": 160,
         "level": 30,
-        "sprite_path": "menu_sprites/menusprite4.png"
+        "sprite_path": "menu_sprites/menusprite4.png",
+        "element": "fire",
+        "exp": 0,
+        "evo": 0
       },
       {
         "name": "Gengar",
         "hp": 110,
         "max_hp": 140,
         "level": 28,
-        "sprite_path": "menu_sprites/menusprite5.png"
+        "sprite_path": "menu_sprites/menusprite5.png",
+        "element": "fire",
+        "exp": 0,
+        "evo": 0
       },
       {
         "name": "Dragonite",
-        "level": 40,
+        "level": 42,
         "hp": 0,
-        "max_hp": 220,
-        "sprite_path": "menu_sprites/menusprite6.png"
+        "max_hp": 229,
+        "sprite_path": "menu_sprites/menusprite6.png",
+        "element": "water",
+        "exp": 15,
+        "evo": 0
       }
     ],
     "items": [
       {
-        "name": "Potion",
+        "name": "Healing Potion",
         "count": 5,
         "sprite_path": "ingame_ui/potion.png",
         "value": 50,
-        "stock": 99
+        "stock": 99,
+        "usable": "yes"
+      },
+      {
+        "name": "Might Potion",
+        "count": 4,
+        "sprite_path": "ingame_ui/might_potion.png",
+        "value": 50,
+        "stock": 99,
+        "usable": "yes"
+      },
+      {
+        "name": "Defense Potion",
+        "count": 4,
+        "sprite_path": "ingame_ui/defense_potion.png",
+        "value": 50,
+        "stock": 99,
+        "usable": "yes"
       },
       {
         "name": "Coins",
         "count": 3,
         "sprite_path": "ingame_ui/coin.png",
         "value": 1,
-        "stock": 0
+        "stock": 0,
+        "usable": "no"
       },
       {
         "name": "Pokeball",
         "count": 10,
         "sprite_path": "ingame_ui/ball.png",
         "value": 75,
-        "stock": 99
+        "stock": 99,
+        "usable": "no"
       }
     ]
   },
@@ -211,42 +264,60 @@
         "hp": 85,
         "max_hp": 100,
         "level": 25,
-        "sprite_path": "menu_sprites/menusprite1.png"
+        "sprite_path": "menu_sprites/menusprite1.png",
+        "element": "nature",
+        "exp": 0,
+        "evo": 0
       },
       {
         "name": "Charizard",
         "hp": 150,
         "max_hp": 200,
         "level": 36,
-        "sprite_path": "menu_sprites/menusprite2.png"
+        "sprite_path": "menu_sprites/menusprite2.png",
+        "element": "nature",
+        "exp": 0,
+        "evo": 1
       },
       {
         "name": "Blastoise",
         "hp": 120,
         "max_hp": 180,
         "level": 32,
-        "sprite_path": "menu_sprites/menusprite3.png"
+        "sprite_path": "menu_sprites/menusprite3.png",
+        "element": "nature",
+        "exp": 0,
+        "evo": 2
       },
       {
         "name": "Venusaur",
         "hp": 90,
         "max_hp": 160,
         "level": 30,
-        "sprite_path": "menu_sprites/menusprite4.png"
+        "sprite_path": "menu_sprites/menusprite4.png",
+        "element": "fire",
+        "exp": 0,
+        "evo": 0
       },
       {
         "name": "Gengar",
         "hp": 110,
         "max_hp": 140,
         "level": 28,
-        "sprite_path": "menu_sprites/menusprite5.png"
+        "sprite_path": "menu_sprites/menusprite5.png",
+        "element": "fire",
+        "exp": 0,
+        "evo": 0
       },
       {
         "name": "Dragonite",
         "hp": 180,
         "max_hp": 220,
         "level": 40,
-        "sprite_path": "menu_sprites/menusprite6.png"
+        "sprite_path": "menu_sprites/menusprite6.png",
+        "element": "water",
+        "exp": 0,
+        "evo": 0
       }
     ],
     "items": []

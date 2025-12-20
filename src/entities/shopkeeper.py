@@ -24,6 +24,7 @@ class ShopKeeper(Entity):
         )
 
         self.items = items
+        self.item_to_buy = None
         self.item_name = None
         self.item_index = -1
         self.current_money = 0
@@ -149,7 +150,7 @@ class ShopKeeper(Entity):
             screen.blit(name_text, (item_start_x + 60, y + 15))
             value_count_text = font.render(f"Value: {item["value"]}   Stock: {item["count"]}", True, (0, 0, 0))
             self.val_dict[item["name"]] = self.val_dict.get(item["name"], item["value"])
-            screen.blit(value_count_text, (item_start_x + 140, y + 25))
+            screen.blit(value_count_text, (item_start_x + 140, y + 35))
             if not self.temp_buttons_item_buy:
                 for i, item in enumerate(self.items):
                     y_button = item_start_y + i * item_gap_y
@@ -200,6 +201,7 @@ class ShopKeeper(Entity):
                     self.temp_buttons_monster_sell.append(temp_button)
 
     def buying_item(self, item, item_index):
+        self.item_to_buy = item
         self.item_name = item["name"]
         self.item_index = item_index
         self.value = self.val_dict[self.item_name]
@@ -236,6 +238,13 @@ class ShopKeeper(Entity):
             if stuff["name"] == self.item_name:
                 stuff["count"] += amount
                 break
+        else:
+            stuff = {
+                "name": self.item_name,
+                "count": 1,  "sprite_path": self.item_to_buy["sprite_path"], 
+                "value": self.value, "stock": 99, "usable": self.item_to_buy["usable"]
+            }
+            self.game_manager.bag._items_data.append(stuff)
 
     @override
     def update(self, dt):

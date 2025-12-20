@@ -5,6 +5,7 @@ import time
 from src.scenes.scene import Scene
 from src.core import GameManager, OnlineManager
 from src.utils import Logger, PositionCamera, GameSettings, Position
+from src.utils.evo_dict import EvoDict
 from src.core.services import scene_manager, sound_manager, input_manager
 from src.sprites import Sprite
 from src.sprites import Animation
@@ -23,6 +24,7 @@ class GameScene(Scene):
         super().__init__()
         self.game_manager = game_manager
         self.showing_bag = False
+        self.evo_dict = EvoDict.evo_dict
 
         # Online Manager
         if GameSettings.IS_ONLINE:
@@ -30,6 +32,7 @@ class GameScene(Scene):
             self.chat_overlay = ChatOverlay(self.online_manager.send_chat, self.online_manager.get_recent_chat)
         else:
             self.online_manager = None
+            self.chat_overlay = None
         self.sprite_online = Sprite("ingame_ui/options1.png", (GameSettings.TILE_SIZE, GameSettings.TILE_SIZE))
         self.animation_online = Animation(
             "character/ow1.png", ["down", "left", "right", "up"], 4,
@@ -112,9 +115,11 @@ class GameScene(Scene):
     def update(self, dt: float):
         # Check if there is assigned next scene
         self.game_manager.try_switch_map()
+        self.info_open = self.game_manager.bag.info_check()
         if self.showing_bag:
             self.game_manager.bag.update(dt)
-            self.back_button.update(dt)
+            if not self.info_open:
+                self.back_button.update(dt)
 
         elif self.game_manager.shop_open:
             for shopkeeper in self.game_manager.current_shopkeeper:
@@ -137,11 +142,17 @@ class GameScene(Scene):
                     self.game_manager.change_bgm = False
 
             # Update player and other data
-            if not self.chat_overlay.is_open:
+            try:
+                if not self.chat_overlay.is_open:
+                    if self.game_manager.player:
+                        self.game_manager.player.update(dt)
+                        if self.game_manager.player.is_moving:
+                            self.game_manager.current_map.update_minimap_view(self.game_manager.player.position)
+            except:
                 if self.game_manager.player:
                     self.game_manager.player.update(dt)
                     if self.game_manager.player.is_moving:
-                        self.game_manager.current_map.update_minimap_view(self.game_manager.player.position)
+                        self.game_manager.current_map.update_minimap_view(self.game_manager.player.position)               
             for enemy in self.game_manager.current_enemy_trainers:
                 enemy.update(dt)
             for shopkeeper in self.game_manager.current_shopkeeper:
@@ -200,7 +211,8 @@ class GameScene(Scene):
             screen.blit(dark_overlay, (0, 0))
             screen.blit(self.board_sprite.image, (board_x, board_y))
             self.game_manager.bag.draw(screen, (board_x, board_y))
-            self.back_button.draw(screen)
+            if not self.info_open:
+                self.back_button.draw(screen)
 
         
         if self.online_manager and self.game_manager.player:
